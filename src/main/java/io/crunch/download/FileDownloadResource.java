@@ -33,7 +33,7 @@ public class FileDownloadResource {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Uni<RestResponse<AsyncFile>> downloadAsAsyncFile(@RestPath("name") String fileName) {
-        logger.info("downloadAsAsyncFile [{}]", fileName);
+        logger.info("asynchFile [{}]", fileName);
         return fileStore.getAsAsyncFile(fileName)
             .onItem()
             .transform(asyncFile ->
@@ -44,7 +44,7 @@ public class FileDownloadResource {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Uni<RestResponse<byte[]>> downloadAsAsyncByteArray(@RestPath("name") String fileName) {
-        logger.info("downloadAsAsyncByteArray [{}]", fileName);
+        logger.info("asyncByteArray [{}]", fileName);
         return fileStore.getAsBuffer(fileName)
             .map(Buffer::getBytes)
             .map(b -> RestResponse.ResponseBuilder.ok(b)
@@ -57,7 +57,7 @@ public class FileDownloadResource {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public RestResponse<StreamingOutput> downloadAsStream(@RestPath("name") String fileName) {
-        logger.info("downloadAsStream [{}]", fileName);
+        logger.info("stream [{}]", fileName);
         try {
             StreamingOutput streamingOutput = output -> fileStore.writeContent(fileName, output);
             return RestResponse.ResponseBuilder.ok(streamingOutput, "application/pdf")
@@ -72,7 +72,7 @@ public class FileDownloadResource {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public RestResponse<byte[]> downloadAsByteArray(@RestPath("name") String fileName) {
-        logger.info("downloadAsByteArray [{}]", fileName);
+        logger.info("byteArray [{}]", fileName);
         return RestResponse.ResponseBuilder.ok(fileStore.getAsByteArray(fileName))
                 .header("Content-Length", fileStore.getFileSize(fileName)).build();
     }
@@ -82,7 +82,7 @@ public class FileDownloadResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @RunOnVirtualThread
     public RestResponse<byte[]> downloadAsByteArrayVirtual(@RestPath("name") String fileName) {
-        logger.info("downloadAsByteArrayVirtual [{}]", fileName);
+        logger.info("byteArrayVirtual [{}]", fileName);
         return RestResponse.ResponseBuilder.ok(fileStore.getAsByteArray(fileName))
                 .header("Content-Length", fileStore.getFileSize(fileName)).build();
     }
