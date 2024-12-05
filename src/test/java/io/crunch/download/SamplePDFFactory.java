@@ -7,9 +7,9 @@ import java.nio.file.Path;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-public class FakePDFFactory {
+public class SamplePDFFactory {
 
-    private static final int oneMb = 1_465_000;
+    private static final int ONE_MB = 1_465_000;
 
     /**
      * Creates PDF file with a dummy content and saves it to the given path.
@@ -39,18 +39,16 @@ public class FakePDFFactory {
     }
 
     public static void main(String[] args) throws IOException {
-        forPermTest("fake%d_001mb.pdf", 1, 1);
-        forPermTest("fake%d_002mb.pdf", 1, 2);
-        forPermTest("fake%d_005mb.pdf", 1, 5);
-        forPermTest("fake%d_010mb.pdf", 1, 10);
-        forPermTest("fake%d_020mb.pdf", 1, 20);
-        forPermTest("fake%d_050mb.pdf", 1, 50);
-        forPermTest("fake%d_100mb.pdf", 1, 100);
+        forPermTest("sample_001mb.pdf", 1);
+        forPermTest("sample_002mb.pdf", 2);
+        forPermTest("sample_005mb.pdf", 5);
+        forPermTest("sample_010mb.pdf", 10);
+        forPermTest("sample_020mb.pdf", 20);
+        forPermTest("sample_050mb.pdf", 50);
+        forPermTest("sample_100mb.pdf", 100);
     }
 
-    private static void forPermTest(String fileNamePattern, int counter, int factor) throws IOException {
-        for (int i = 1; i <= counter; ++i) {
-            create(oneMb * factor, Path.of(fileNamePattern.formatted(i)));
-        }
+    private static void forPermTest(String fileNamePattern, int factor) throws IOException {
+        create(ONE_MB * factor, Path.of(fileNamePattern));
     }
 }
