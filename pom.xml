@@ -76,20 +76,17 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5-mockito</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Used for generating fake pdf documents -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox-tools</artifactId>
             <version>${pdfbox-tools.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -128,6 +125,8 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+                    <!-- Detect pinned thread in tests -->
+                    <argLine>-Djdk.tracePinnedThreads</argLine>
                 </configuration>
             </plugin>
             <plugin>
