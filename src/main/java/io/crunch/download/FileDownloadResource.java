@@ -46,11 +46,11 @@ public class FileDownloadResource {
      * @return a {@link Uni} emitting a {@link RestResponse} containing the {@link AsyncFile}
      * @apiNote The call is executed on the event loop thread.
      */
-    @Path("/asynchFile/{name}")
+    @Path("/asyncFile/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Uni<RestResponse<AsyncFile>> downloadAsAsyncFile(@RestPath("name") String fileName) {
-        logger.info("asynchFile [{}]", fileName);
+        logger.info("asyncFile [{}]", fileName);
         return fileStore.getAsAsyncFile(fileName)
             .onItem()
             .transform(asyncFile ->
