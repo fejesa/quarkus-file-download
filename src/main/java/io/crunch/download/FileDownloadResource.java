@@ -18,6 +18,16 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+/**
+ * {@code FileDownloadResource} provides RESTful endpoints for downloading files in various formats.
+ * <p>
+ * This class leverages:
+ * <ul>
+ *   <li>SmallRye Mutiny for reactive programming.</li>
+ *   <li>RESTEasy Reactive for building non-blocking RESTful APIs.</li>
+ *   <li>Vert.x Mutiny APIs for asynchronous file handling.</li>
+ * </ul>
+ */
 @Path("/download")
 public class FileDownloadResource {
 
@@ -29,6 +39,13 @@ public class FileDownloadResource {
         this.fileStore = fileStore;
     }
 
+    /**
+     * Endpoint to download a file as an {@link AsyncFile}.
+     *
+     * @param fileName the name of the file to download
+     * @return a {@link Uni} emitting a {@link RestResponse} containing the {@link AsyncFile}
+     * @apiNote The call is executed on the event loop thread.
+     */
     @Path("/asynchFile/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -40,6 +57,15 @@ public class FileDownloadResource {
                 RestResponse.ResponseBuilder.ok(asyncFile, "application/pdf").build());
     }
 
+    /**
+     * Endpoint to download a file as a byte array asynchronously.
+     * <p>
+     * This method runs on a worker thread pool to avoid blocking the event loop.
+     *
+     * @param fileName the name of the file to download
+     * @return a {@link Uni} emitting a {@link RestResponse} containing the file's byte array
+     * @apiNote The call is executed on the event loop thread.
+     */
     @Path("/asyncByteArray/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -53,6 +79,15 @@ public class FileDownloadResource {
             .runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
     }
 
+    /**
+     * Endpoint to download a file as a streaming output.
+     * <p>
+     * This method uses blocking I/O to stream the file content directly to the HTTP response.
+     *
+     * @param fileName the name of the file to download
+     * @return a {@link RestResponse} containing a {@link StreamingOutput} for the file's content
+     * @apiNote The call is executed on worker thread pool to avoid blocking the event loop (limit concurrency).
+     */
     @Path("/stream/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -68,6 +103,13 @@ public class FileDownloadResource {
         }
     }
 
+    /**
+     * Endpoint to download a file as a byte array using blocking I/O.
+     *
+     * @param fileName the name of the file to download
+     * @return a {@link RestResponse} containing the file's byte array
+     * @apiNote The call is executed on worker thread pool to avoid blocking the event loop (limit concurrency).
+     */
     @Path("/byteArray/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -77,6 +119,14 @@ public class FileDownloadResource {
                 .header("Content-Length", fileStore.getFileSize(fileName)).build();
     }
 
+    /**
+     * Endpoint to download a file as a byte array using virtual threads.
+     *
+     * @param fileName the name of the file to download
+     * @return a {@link RestResponse} containing the file's byte array
+     * @apiNote This method runs on a virtual thread to handle blocking I/O efficiently, but risk of pinning, monopolization and under-efficient object pooling
+     * @see RunOnVirtualThread
+     */
     @Path("/byteArrayVirtual/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
