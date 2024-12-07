@@ -2,7 +2,6 @@ package io.crunch.download;
 
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.file.AsyncFile;
 import jakarta.ws.rs.GET;
@@ -53,8 +52,7 @@ public class FileDownloadResource {
         logger.info("asyncFile [{}]", fileName);
         return fileStore.getAsAsyncFile(fileName)
             .onItem()
-            .transform(asyncFile ->
-                RestResponse.ResponseBuilder.ok(asyncFile, "application/pdf").build());
+            .transform(asyncFile -> RestResponse.ResponseBuilder.ok(asyncFile, "application/pdf").build());
     }
 
     /**
@@ -73,10 +71,8 @@ public class FileDownloadResource {
         logger.info("asyncByteArray [{}]", fileName);
         return fileStore.getAsBuffer(fileName)
             .map(Buffer::getBytes)
-            .map(b -> RestResponse.ResponseBuilder.ok(b)
-                    //.header("Content-Length", fileStore.getFileSize(fileName))
-                    .build())
-            .runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
+            .onItem()
+            .transform(b -> RestResponse.ResponseBuilder.ok(b).build());
     }
 
     /**
@@ -96,7 +92,7 @@ public class FileDownloadResource {
         try {
             StreamingOutput streamingOutput = output -> fileStore.writeContent(fileName, output);
             return RestResponse.ResponseBuilder.ok(streamingOutput, "application/pdf")
-                    //.header("Content-Length", fileStore.getFileSize(fileName))
+                    .header("Content-Length", fileStore.getFileSize(fileName))
                     .build();
         } catch (Exception e) {
             throw new NotFoundException("File not found");
