@@ -19,13 +19,13 @@ The comparison focuses on **response time**, **throughput**, and **resource util
 
 The application exposes the following REST endpoints for file downloading:
 
-| Endpoint                             | Method | Description                                                                                     | Return Type                     |
-|--------------------------------------|--------|-------------------------------------------------------------------------------------------------|---------------------------------|
-| `/download/asynchFile/{name}`        | GET    | Downloads a file asynchronously as an `AsyncFile`.                                             | `Uni<RestResponse<AsyncFile>>`  |
-| `/download/asyncByteArray/{name}`    | GET    | Downloads a file asynchronously as a byte array.                                               | `Uni<RestResponse<byte[]>>`     |
-| `/download/stream/{name}`            | GET    | Streams the file content synchronously using a `StreamingOutput`.                              | `RestResponse<StreamingOutput>` |
-| `/download/byteArray/{name}`         | GET    | Downloads a file synchronously as a byte array.                                                | `RestResponse<byte[]>`          |
-| `/download/byteArrayVirtual/{name}`  | GET    | Downloads a file synchronously using Virtual Threads, returning a byte array.                  | `RestResponse<byte[]>`          |
+| Endpoint                             | Method | Description                                                                    | Return Type                     |
+|--------------------------------------|--------|--------------------------------------------------------------------------------|---------------------------------|
+| `/download/asynchFile/{name}`        | GET    | Downloads a file asynchronously as an `AsyncFile`.                             | `Uni<RestResponse<AsyncFile>>`  |
+| `/download/asyncByteArray/{name}`    | GET    | Downloads a file asynchronously as a byte array.                               | `Uni<RestResponse<byte[]>>`     |
+| `/download/stream/{name}`            | GET    | Streams the file content synchronously using a `StreamingOutput`.              | `RestResponse<StreamingOutput>` |
+| `/download/byteArray/{name}`         | GET    | Downloads a file synchronously as a byte array.                                | `RestResponse<byte[]>`          |
+| `/download/byteArrayVirtual/{name}`  | GET    | Downloads a file asynchronously using Virtual Threads, returning a byte array. | `RestResponse<byte[]>`          |
 
 # Requirements
 To build and run this project, you need the following tools:
@@ -70,7 +70,7 @@ The JMeter test plan is located in the `src/perf` directory. It is preconfigured
 - Runs for 2.5 minutes.
 - Generate a summary report.
 
-<img src="docs/download_test_plan.png" alt="JMeter Test Plan" width="60%" />
+<img src="docs/download_test_plan.png" alt="JMeter Test Plan" width="80%" />
 
 # Running the performance tests
 To execute the performance tests for the REST API endpoints, run the following command from the `perf` directory:
@@ -83,7 +83,7 @@ where:
 - `DOWNLOAD_CONTEXT`: The context path of the REST API endpoint you want to test. For example: `asyncFile`, `asyncByteArray`, `stream`, `byteArray`, or `byteArrayVirtual`
 
 # Test Tesult Results on Raspberry Pi 5
-**Note**: I conducted the performance tests on a Raspberry Pi 5 with 8GB RAM and a 64-bit ARM processor, running both the application and JMeter on the same machine. For comparison, I also executed the tests on a MacBook Pro with an M1 chip, where I observed better throughput. However, the overall conclusions remained consistent across both environments.
+**Note**: I conducted the performance tests on a Raspberry Pi 5 with 8GB RAM and a 64-bit ARM processor, running both the application and JMeter on the same machine. For comparison, I also executed the tests on a MacBook Pro with an M1 chip, where I observed better throughput - results are not attached. However, the overall conclusions remained consistent across both environments.
 
 * CPU usage was similar across all test cases.
 * Thread execution differed based on the endpoint type:
