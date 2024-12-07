@@ -44,8 +44,6 @@ public class SamplePDFFactory {
         forPermTest("sample_005mb.pdf", 5);
         forPermTest("sample_010mb.pdf", 10);
         forPermTest("sample_020mb.pdf", 20);
-        forPermTest("sample_050mb.pdf", 50);
-        forPermTest("sample_100mb.pdf", 100);
     }
 
     private static void forPermTest(String fileNamePattern, int factor) throws IOException {
