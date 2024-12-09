@@ -70,7 +70,7 @@ The JMeter test plan is located in the `src/perf` directory. It is preconfigured
 - Runs for 2.5 minutes.
 - Generate a summary report.
 
-<img src="docs/download_test_plan.png" alt="JMeter Test Plan" width="80%" />
+![JMeter Test Plan](docs/download_test_plan.png)
 
 # Running the performance tests
 To execute the performance tests for the REST API endpoints, run the following command from the `perf` directory:
@@ -108,13 +108,13 @@ where:
 | asyncByteArray     |                         20.4 |
 | asyncFile          |                         14.0 |
 
-The following screenshot show result of the monitoring of the application using JMX console.
+The following screenshot show result of the monitoring of the application using JMX JConsole.
 
-<img src="docs/file_download_jmx.png" alt="JMX console" width="80%" />
+![JMX JConsole](docs/file_download_jmx.png)
 
 The following screenshot shows the response time of the different endpoints.
 
-<img src="docs/response_time.png" alt="JMX console" width="80%" />
+![Response Time](docs/response_time.png)
 
 # Disclaimer
 This project is a proof of concept and focuses on showcasing different file download approaches using Quarkus. The performance tests simulate workloads on the REST endpoints for educational and comparison purposes. Results may vary based on hardware, network conditions, and other factors.
