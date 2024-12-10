@@ -39,12 +39,11 @@ public class SamplePDFFactory {
     }
 
     public static void main(String[] args) throws IOException {
-//        forPermTest("sample_001mb.pdf", 1);
-//        forPermTest("sample_002mb.pdf", 2);
-//        forPermTest("sample_005mb.pdf", 5);
-//        forPermTest("sample_010mb.pdf", 10);
-//        forPermTest("sample_020mb.pdf", 20);
-        forPermTest("sample.pdf", 100);
+        forPermTest("sample_001mb.pdf", 1);
+        forPermTest("sample_002mb.pdf", 2);
+        forPermTest("sample_005mb.pdf", 5);
+        forPermTest("sample_010mb.pdf", 10);
+        forPermTest("sample_020mb.pdf", 20);
     }
 
     private static void forPermTest(String fileNamePattern, int factor) throws IOException {
