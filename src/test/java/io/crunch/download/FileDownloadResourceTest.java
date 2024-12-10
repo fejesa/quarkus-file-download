@@ -20,7 +20,8 @@ class FileDownloadResourceTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "/download/asyncFile/sample.pdf",
-            "/download/asyncByteArray/sample.pdf",
+            "/download/asyncBuffer/sample.pdf",
+            "/download/asyncMultiBuffer/sample.pdf",
             "/download/stream/sample.pdf",
             "/download/byteArray/sample.pdf",
             "/download/byteArrayVirtual/sample.pdf"})

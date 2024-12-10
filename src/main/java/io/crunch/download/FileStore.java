@@ -1,8 +1,10 @@
 package io.crunch.download;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.file.AsyncFile;
+import io.vertx.mutiny.core.streams.ReadStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,13 +13,14 @@ import java.io.OutputStream;
  * The {@code FileStore} interface defines a contract for handling file storage operations,
  * combining Vert.x's asynchronous file handling capabilities with Mutiny's reactive programming model.
  * <p>
- * This interface allows retrieving file content in various formats and performing operations asynchronously
+ * This interface allows retrieving file content in various formats and performing operations asynchronously, and synchronously as well
  * to enhance application performance and scalability. It is built using:
  * <ul>
  *     <li>{@link io.vertx.mutiny.core.file.AsyncFile} for asynchronous file access, leveraging Vert.x's
  *     non-blocking I/O model.</li>
  *     <li>{@link io.smallrye.mutiny.Uni} for reactive programming, providing a declarative way to compose
  *     asynchronous operations.</li>
+ *     <li>{@link io.smallrye.mutiny.Multi} for reactive programming, and handling streams of data, such as reading file content in chunks.</li>
  * </ul>
  */
 public interface FileStore {
@@ -34,21 +37,33 @@ public interface FileStore {
      * @see <a href="https://vertx.io/docs/vertx-core/java/#_asynchronous_files">Vert.x AsyncFile Documentation</a>
      * @see <a href="https://smallrye.io/smallrye-mutiny/">Mutiny Documentation</a>
      */
-    Uni<AsyncFile> getAsAsyncFile(String fileName);
+    Uni<AsyncFile> getAsyncFile(String fileName);
 
     /**
-     * Retrieves the content of the specified file as a {@link Buffer}.
+     * Reads the content of the specified file into a {@link Buffer}.
      * <p>
-     * The {@link Buffer} is a Vert.x data structure designed to hold and manipulate binary data efficiently.
-     * This method loads the file content into memory asynchronously.
+     * This method uses the Vert.x file system API to asynchronously read the file's content into memory.
      *
-     * @param fileName the name of the file to retrieve
+     * @param fileName the name of the file to read
      * @return a {@link Uni} emitting the {@link Buffer} containing the file's content,
      *         or a failure if the file cannot be read
+     * @apiNote Do not use this method to read very large files, or you risk running out of available RAM.
      * @see <a href="https://vertx.io/docs/vertx-core/java/#_buffers">Vert.x Buffer Documentation</a>
      * @see <a href="https://smallrye.io/smallrye-mutiny/">Mutiny Documentation</a>
      */
-    Uni<Buffer> getAsBuffer(String fileName);
+    Uni<Buffer> getBuffer(String fileName);
+
+    /**
+     * Reads the content of the specified file into a {@link Multi} of {@link Buffer} instances.
+     * <p>
+     * Internally it uses the Vert.x {@link AsyncFile} that is a {@link ReadStream}, and reads the file's content in chunks
+     *
+     * @param fileName the name of the file to read
+     * @return a {@link Multi} emitting {@link Buffer} instances containing the file's content.
+     * @see <a href="https://vertx.io/docs/vertx-core/java/#_buffers">Vert.x Buffer Documentation</a>
+     * @see <a href="https://smallrye.io/smallrye-mutiny/">Mutiny Documentation</a>
+     */
+    Multi<Buffer> getMultiBuffer(String fileName);
 
     /**
      * Retrieves the content of the specified file as a byte array.
@@ -59,7 +74,7 @@ public interface FileStore {
      * @param fileName the name of the file to retrieve
      * @return a byte array containing the file's content, or {@code null} if the file does not exist
      */
-    byte[] getAsByteArray(String fileName);
+    byte[] getByteArray(String fileName);
 
     /**
      * Retrieves the size of the specified file in bytes.

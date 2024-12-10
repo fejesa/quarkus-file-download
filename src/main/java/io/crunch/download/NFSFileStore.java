@@ -1,10 +1,12 @@
 package io.crunch.download;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.file.AsyncFile;
+import io.vertx.mutiny.core.streams.ReadStream;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -50,11 +52,12 @@ public class NFSFileStore implements FileStore {
      *         or a failure if the file cannot be opened
      */
     @Override
-    public Uni<AsyncFile> getAsAsyncFile(String fileName) {
+    public Uni<AsyncFile> getAsyncFile(String fileName) {
         var openOptions = new OpenOptions()
+                .setRead(true)
                 .setCreate(false)
                 .setWrite(false);
-        return vertx.fileSystem().open(getPath(fileName).toString(), openOptions);
+        return vertx.fileSystem().open(getPathAsString(fileName), openOptions);
     }
 
     /**
@@ -65,10 +68,24 @@ public class NFSFileStore implements FileStore {
      * @param fileName the name of the file to read
      * @return a {@link Uni} emitting the {@link Buffer} containing the file's content,
      *         or a failure if the file cannot be read
+     * @apiNote Do not use this method to read very large files, or you risk running out of available RAM.
      */
     @Override
-    public Uni<Buffer> getAsBuffer(String fileName) {
-        return vertx.fileSystem().readFile(getPath(fileName).toString());
+    public Uni<Buffer> getBuffer(String fileName) {
+        return vertx.fileSystem().readFile(getPathAsString(fileName));
+    }
+
+    /**
+     * Reads the content of the specified file into a {@link Multi} of {@link Buffer} instances.
+     * <p>
+     * Internally it uses the Vert.x {@link AsyncFile} that is a {@link ReadStream}, and reads the file's content in chunks
+     *
+     * @param fileName the name of the file to read
+     * @return a {@link Multi} emitting {@link Buffer} instances containing the file's content.
+     */
+    @Override
+    public Multi<Buffer> getMultiBuffer(String fileName) {
+        return getAsyncFile(fileName).onItem().transformToMulti(AsyncFile::toMulti);
     }
 
     /**
@@ -81,7 +98,7 @@ public class NFSFileStore implements FileStore {
      */
     @Override
     public long getFileSize(String fileName) {
-        return vertx.fileSystem().propsAndAwait(getPath(fileName).toString()).size();
+        return vertx.fileSystem().propsAndAwait(getPathAsString(fileName)).size();
     }
 
     /**
@@ -94,7 +111,7 @@ public class NFSFileStore implements FileStore {
      * @throws RuntimeException if an I/O error occurs while reading the file
      */
     @Override
-    public byte[] getAsByteArray(String fileName) {
+    public byte[] getByteArray(String fileName) {
         try (var fis = new FileInputStream(getPath(fileName).toFile());
              var baos = new ByteArrayOutputStream()) {
             fis.transferTo(baos);
@@ -128,5 +145,9 @@ public class NFSFileStore implements FileStore {
 
     private Path getPath(String fileName) {
         return Paths.get(fileStoreRootDirectory, fileName);
+    }
+
+    private String getPathAsString(String fileName) {
+        return getPath(fileName).toString();
     }
 }

@@ -1,6 +1,7 @@
 package io.crunch.download;
 
 import io.smallrye.common.annotation.RunOnVirtualThread;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.file.AsyncFile;
@@ -8,6 +9,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.StreamingOutput;
 import org.jboss.resteasy.reactive.RestPath;
@@ -48,31 +50,43 @@ public class FileDownloadResource {
     @Path("/asyncFile/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Uni<RestResponse<AsyncFile>> downloadAsAsyncFile(@RestPath("name") String fileName) {
+    public Uni<RestResponse<AsyncFile>> downloadAsyncFile(@RestPath("name") String fileName) {
         logger.info("asyncFile [{}]", fileName);
-        return fileStore.getAsAsyncFile(fileName)
+        return fileStore.getAsyncFile(fileName)
             .onItem()
             .transform(asyncFile -> RestResponse.ResponseBuilder.ok(asyncFile, "application/pdf").build());
     }
 
     /**
-     * Endpoint to download a file as a byte array asynchronously.
-     * <p>
-     * This method runs on a worker thread pool to avoid blocking the event loop.
+     * Endpoint to download a file as a Vert.x {@link Buffer} asynchronously.
      *
      * @param fileName the name of the file to download
-     * @return a {@link Uni} emitting a {@link RestResponse} containing the file's byte array
+     * @return a {@link Uni} emitting a {@link RestResponse} containing the file's content as a {@link Buffer}
      * @apiNote The call is executed on the event loop thread.
      */
-    @Path("/asyncByteArray/{name}")
+    @Path("/asyncBuffer/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Uni<RestResponse<byte[]>> downloadAsAsyncByteArray(@RestPath("name") String fileName) {
-        logger.info("asyncByteArray [{}]", fileName);
-        return fileStore.getAsBuffer(fileName)
-            .map(Buffer::getBytes)
+    public Uni<RestResponse<Buffer>> downloadAsyncBuffer(@RestPath("name") String fileName) {
+        logger.info("asyncBuffer [{}]", fileName);
+        return fileStore.getBuffer(fileName)
             .onItem()
             .transform(b -> RestResponse.ResponseBuilder.ok(b).build());
+    }
+
+    /**
+     * Endpoint to download a file as a {@link Multi} of {@link Buffer} instances asynchronously.
+     * <p>
+     * @param fileName the name of the file to download
+     * @return a {@link Multi} emitting the file's content as a stream of {@link Buffer} instances
+     * @apiNote The call is executed on the event loop thread.
+     */
+    @Path("/asyncMultiBuffer/{name}")
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Multi<Buffer> downloadAsyncMultiBuffer(@RestPath("name") String fileName) {
+        logger.info("asyncMultiBuffer [{}]", fileName);
+        return fileStore.getMultiBuffer(fileName);
     }
 
     /**
@@ -87,12 +101,12 @@ public class FileDownloadResource {
     @Path("/stream/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public RestResponse<StreamingOutput> downloadAsStream(@RestPath("name") String fileName) {
+    public RestResponse<StreamingOutput> downloadStream(@RestPath("name") String fileName) {
         logger.info("stream [{}]", fileName);
         try {
             StreamingOutput streamingOutput = output -> fileStore.writeContent(fileName, output);
             return RestResponse.ResponseBuilder.ok(streamingOutput, "application/pdf")
-                    .header("Content-Length", fileStore.getFileSize(fileName))
+                    .header(HttpHeaders.CONTENT_LENGTH, fileStore.getFileSize(fileName))
                     .build();
         } catch (Exception e) {
             throw new NotFoundException("File not found");
@@ -109,10 +123,10 @@ public class FileDownloadResource {
     @Path("/byteArray/{name}")
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public RestResponse<byte[]> downloadAsByteArray(@RestPath("name") String fileName) {
+    public RestResponse<byte[]> downloadByteArray(@RestPath("name") String fileName) {
         logger.info("byteArray [{}]", fileName);
-        return RestResponse.ResponseBuilder.ok(fileStore.getAsByteArray(fileName))
-                .header("Content-Length", fileStore.getFileSize(fileName)).build();
+        return RestResponse.ResponseBuilder.ok(fileStore.getByteArray(fileName))
+                .header(HttpHeaders.CONTENT_LENGTH, fileStore.getFileSize(fileName)).build();
     }
 
     /**
@@ -127,9 +141,9 @@ public class FileDownloadResource {
     @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @RunOnVirtualThread
-    public RestResponse<byte[]> downloadAsByteArrayVirtual(@RestPath("name") String fileName) {
+    public RestResponse<byte[]> downloadByteArrayVirtual(@RestPath("name") String fileName) {
         logger.info("byteArrayVirtual [{}]", fileName);
-        return RestResponse.ResponseBuilder.ok(fileStore.getAsByteArray(fileName))
-                .header("Content-Length", fileStore.getFileSize(fileName)).build();
+        return RestResponse.ResponseBuilder.ok(fileStore.getByteArray(fileName))
+                .header(HttpHeaders.CONTENT_LENGTH, fileStore.getFileSize(fileName)).build();
     }
 }
