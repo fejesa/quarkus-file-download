@@ -18,14 +18,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * {@code NFSFileStore} is an implementation of the {@link FileStore} interface
- * that provides file storage operations on a network file system (NFS).
+ * {@code LocalFileStore} is an implementation of the {@link FileStore} interface
+ * that provides file storage operations on a local file system (NFS).
  * <p>
  * This class integrates with Vert.x and Mutiny to perform asynchronous file operations
  * and supports synchronous file access methods for scenarios where blocking operations are acceptable.
  */
 @ApplicationScoped
-public class NFSFileStore implements FileStore {
+public class LocalFileStore implements FileStore {
 
     /**
      * The root directory of the file store.
@@ -37,7 +37,7 @@ public class NFSFileStore implements FileStore {
      */
     private final Vertx vertx;
 
-    public NFSFileStore(@ConfigProperty(name = "app.filestore.root") String fileStoreRootDirectory, Vertx vertx) {
+    public LocalFileStore(@ConfigProperty(name = "app.filestore.root") String fileStoreRootDirectory, Vertx vertx) {
         this.fileStoreRootDirectory = fileStoreRootDirectory;
         this.vertx = vertx;
     }
@@ -46,6 +46,7 @@ public class NFSFileStore implements FileStore {
      * Opens the specified file as an {@link AsyncFile} for asynchronous read operations.
      * <p>
      * This method uses Vert.x's file system API with {@link OpenOptions} to open the file in read-only mode.
+     * The default read buffer size is set to 8KB.
      *
      * @param fileName the name of the file to open
      * @return a {@link Uni} emitting the {@link AsyncFile} instance representing the file,
@@ -78,7 +79,7 @@ public class NFSFileStore implements FileStore {
     /**
      * Reads the content of the specified file into a {@link Multi} of {@link Buffer} instances.
      * <p>
-     * Internally it uses the Vert.x {@link AsyncFile} that is a {@link ReadStream}, and reads the file's content in chunks
+     * Internally it uses the Vert.x {@link AsyncFile} that is a {@link ReadStream}, and reads the file's content in chunks.
      *
      * @param fileName the name of the file to read
      * @return a {@link Multi} emitting {@link Buffer} instances containing the file's content.

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * {@code FileDownloadResource} provides RESTful endpoints for downloading files in various formats.
+ * {@code FileDownloadResource} provides RESTful endpoints for downloading files in various ways.
  * <p>
  * This class leverages:
  * <ul>
@@ -76,7 +76,7 @@ public class FileDownloadResource {
 
     /**
      * Endpoint to download a file as a {@link Multi} of {@link Buffer} instances asynchronously.
-     * <p>
+     *
      * @param fileName the name of the file to download
      * @return a {@link Multi} emitting the file's content as a stream of {@link Buffer} instances
      * @apiNote The call is executed on the event loop thread.
