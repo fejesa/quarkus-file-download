@@ -19,14 +19,14 @@ The comparison focuses on **response time**, **throughput**, and **resource util
 
 The application exposes the following REST endpoints for file downloading:
 
-| Endpoint                            | Method | Description                                                                    | Return Type                     |
-|-------------------------------------|--------|--------------------------------------------------------------------------------|---------------------------------|
-| `/download/asynchFile/{name}`       | GET    | Downloads a file asynchronously as an `AsyncFile`.                             | `Uni<RestResponse<AsyncFile>>`  |
-| `/download/asyncBuffer/{name}`      | GET    | Downloads a file asynchronously as a `Buffer`.                                 | `Uni<RestResponse<Buffer>>`     |
-| `/download/asyncMultiBuffer/{name}` | GET    | Downloads a file asynchronously multiple `Buffer` as chunks.                   | `Multi<Buffer>`                 |
-| `/download/stream/{name}`           | GET    | Streams the file content synchronously using a `StreamingOutput`.              | `RestResponse<StreamingOutput>` |
-| `/download/byteArray/{name}`        | GET    | Downloads a file synchronously as a byte array.                                | `RestResponse<byte[]>`          |
-| `/download/byteArrayVirtual/{name}` | GET    | Downloads a file asynchronously using Virtual Threads, returning a byte array. | `RestResponse<byte[]>`          |
+| Endpoint                            | Description                                                                    | Return Type                     |
+|-------------------------------------|--------------------------------------------------------------------------------|---------------------------------|
+| `/download/asynchFile/{name}`       | Downloads a file asynchronously as an `AsyncFile`.                             | `Uni<RestResponse<AsyncFile>>`  |
+| `/download/asyncBuffer/{name}`      | Downloads a file asynchronously as a `Buffer`.                                 | `Uni<RestResponse<Buffer>>`     |
+| `/download/asyncMultiBuffer/{name}` | Downloads a file asynchronously multiple `Buffer` as chunks.                   | `Multi<Buffer>`                 |
+| `/download/stream/{name}`           | Streams the file content synchronously using a `StreamingOutput`.              | `RestResponse<StreamingOutput>` |
+| `/download/byteArray/{name}`        | Downloads a file synchronously as a byte array.                                | `RestResponse<byte[]>`          |
+| `/download/byteArrayVirtual/{name}` | Downloads a file asynchronously using Virtual Threads, returning a byte array. | `RestResponse<byte[]>`          |
 
 # Requirements
 To build and run this project, you need the following tools:
