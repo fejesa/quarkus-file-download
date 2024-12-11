@@ -10,7 +10,7 @@ DOWNLOAD_SERVER_PORT=8080
 FILE_LIST=$DOWNLOAD_TEST_HOME/file_list.csv
 REPORT_RESPONSE_TIME_PATH=$DOWNLOAD_TEST_HOME/report/report_response_time.jtl
 REPORT_AGGREGATE_PATH=$DOWNLOAD_TEST_HOME/report/report_aggregate.jtl
-# Define download context: asyncFile, asyncByteArray, stream, byteArray, byteArrayVirtual
+# Define download context: asyncFile, asyncBuffer, asyncMultiBuffer, stream, byteArray, byteArrayVirtual
 DOWNLOAD_CONTEXT=$3
 
 echo "Starting JMeter test - download context: $DOWNLOAD_CONTEXT"

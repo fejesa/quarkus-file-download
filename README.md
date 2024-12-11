@@ -19,13 +19,14 @@ The comparison focuses on **response time**, **throughput**, and **resource util
 
 The application exposes the following REST endpoints for file downloading:
 
-| Endpoint                             | Method | Description                                                                    | Return Type                     |
-|--------------------------------------|--------|--------------------------------------------------------------------------------|---------------------------------|
-| `/download/asynchFile/{name}`        | GET    | Downloads a file asynchronously as an `AsyncFile`.                             | `Uni<RestResponse<AsyncFile>>`  |
-| `/download/asyncByteArray/{name}`    | GET    | Downloads a file asynchronously as a byte array.                               | `Uni<RestResponse<byte[]>>`     |
-| `/download/stream/{name}`            | GET    | Streams the file content synchronously using a `StreamingOutput`.              | `RestResponse<StreamingOutput>` |
-| `/download/byteArray/{name}`         | GET    | Downloads a file synchronously as a byte array.                                | `RestResponse<byte[]>`          |
-| `/download/byteArrayVirtual/{name}`  | GET    | Downloads a file asynchronously using Virtual Threads, returning a byte array. | `RestResponse<byte[]>`          |
+| Endpoint                            | Method | Description                                                                    | Return Type                     |
+|-------------------------------------|--------|--------------------------------------------------------------------------------|---------------------------------|
+| `/download/asynchFile/{name}`       | GET    | Downloads a file asynchronously as an `AsyncFile`.                             | `Uni<RestResponse<AsyncFile>>`  |
+| `/download/asyncBuffer/{name}`      | GET    | Downloads a file asynchronously as a `Buffer`.                                 | `Uni<RestResponse<Buffer>>`     |
+| `/download/asyncMultiBuffer/{name}` | GET    | Downloads a file asynchronously multiple `Buffer` as chunks.                   | `Multi<Buffer>`                 |
+| `/download/stream/{name}`           | GET    | Streams the file content synchronously using a `StreamingOutput`.              | `RestResponse<StreamingOutput>` |
+| `/download/byteArray/{name}`        | GET    | Downloads a file synchronously as a byte array.                                | `RestResponse<byte[]>`          |
+| `/download/byteArrayVirtual/{name}` | GET    | Downloads a file asynchronously using Virtual Threads, returning a byte array. | `RestResponse<byte[]>`          |
 
 # Requirements
 To build and run this project, you need the following tools:
@@ -36,9 +37,13 @@ To build and run this project, you need the following tools:
 # Building and Running the Application
 Follow these steps to build and run the application locally:
 1. Clone the repository.
-2. Run the application in **development mode**:
+2. To build the application, run the following command:
 ```shell
- mvn clean quarkus:dev
+mvn clean package
+```
+3. Run the application with sufficient heap memory:
+```shell
+ java -Xms2g -Xmx2g -jar target/quarkus-app/quarkus-run.jar
 ```
 **Optional**: You can containerize the application using Docker, but this is not required for running the performance tests.
 
@@ -80,41 +85,46 @@ To execute the performance tests for the REST API endpoints, run the following c
 where:
 - `JMETER_HOME`: The path to your JMeter installation directory
 - `DOWNLOAD_SERVER_HOST`: The hostname or IP address of the server where the application is running.
-- `DOWNLOAD_CONTEXT`: The context path of the REST API endpoint you want to test. For example: `asyncFile`, `asyncByteArray`, `stream`, `byteArray`, or `byteArrayVirtual`
+- `DOWNLOAD_CONTEXT`: The context path of the REST API endpoint you want to test. For example: `asyncFile`, `asyncBuffer`, `asyncMultiBuffer`, `stream`, `byteArray`, or `byteArrayVirtual`
 
-# Test Tesult Results on Raspberry Pi 5
+# Test Results on Raspberry Pi 5
 **Note**: I conducted the performance tests on a Raspberry Pi 5 with 8GB RAM and a 64-bit ARM processor, running both the application and JMeter on the same machine. For comparison, I also executed the tests on a MacBook Pro with an M1 chip, where I observed better throughput - results are not attached. However, the overall conclusions remained consistent across both environments.
 
-* CPU usage was similar across all test cases.
+* CPU usage was similar across all test cases, by downloading files as streams used the less CPU.
 * Thread execution differed based on the endpoint type:
   * Async endpoints were executed on the **event loop threads**.
   * Blocking calls (`byteArray` and `stream`) ran on the **worker threads**.
   * `byteArrayVirtual` calls utilized **virtual threads**.
 * Thread usage varied:
-  * Async calls used the fewest threads.
+  * Async calls used the fewest threads, `asyncBuffer` used significantly fewer threads than other async endpoints.
   * Blocking calls required more threads.
   * Virtual threads fell somewhere in between.
 * Heap memory usage:
-  * The `asyncFile` endpoint used the least heap memory since the file contents were not loaded directly into memory.
+  * The `asyncFile` endpoint used the most heap memory.
+  * The `asyncMultiBuffer` and `stream` endpoints used similar memory.
+  * The `asyncBuffer`, `byteArray`, and `byteArrayVirtual` endpoint used the least memory.
 * Throughput:
   * The `stream` endpoint achieved the best throughput.
-  * The `asyncFile` endpoint had the lowest throughput.
+  * The `asyncMultiBuffer` endpoint had the lowest throughput.
 
-| Endpoint           | Throughput (requests/second) |
-|--------------------|-----------------------------:|
-| byteArrayVirtual   |                         20.6 |
-| byteArray          |                         20.6 |
-| stream             |                         28.7 |
-| asyncByteArray     |                         20.4 |
-| asyncFile          |                         14.0 |
+| Endpoint         | Throughput (requests/second) |
+|------------------|-----------------------------:|
+| byteArrayVirtual |                         23.8 |
+| byteArray        |                         24.6 |
+| stream           |                         36.8 |
+| asyncMultiBuffer |                         16.5 |
+| asyncBuffer      |                         24.0 |
+| asyncFile        |                         22.0 |
+
+**Note**: Under the hood, the `byteArray` and `byteArrayVirtual` endpoints use the same implementation; in case of `asyncBuffer` the file content is loaded into the memory also. Do not use these methods to read very large files.
 
 The following screenshot show result of the monitoring of the application using JMX JConsole.
 
-![JMX JConsole](docs/file_download_jmx.png)
+![JMX JConsole](docs/download_jmx.png)
 
 The following screenshot shows the response time of the different endpoints.
 
-![Response Time](docs/response_time.png)
+![Response Time](docs/download_response_time.png)
 
 # Disclaimer
 This project is a proof of concept and focuses on showcasing different file download approaches using Quarkus. The performance tests simulate workloads on the REST endpoints for educational and comparison purposes. Results may vary based on hardware, network conditions, and other factors.
