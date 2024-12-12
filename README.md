@@ -57,7 +57,7 @@ The performance tests require sample files of varying sizes to simulate real-wor
 - This class generates sample PDF files of different sizes: 1, 2, 5, 10 and 20 MB.
 - Move the files to the folder where the application can access; the default is the `/tmp` directory.
 
-**Note**: You can change the folder in the `application.properties` file.
+**Note**: You can change the folder in the `application.properties` file. If you would like to test with different file sizes, modify the `SamplePDFFactory.java` class accordingly, and updates the `file_list.csv` in the JMeter test plan.
 
 ### 3. Install JMeter Plugins
 To extend JMeter's functionality, install the required plugins:
